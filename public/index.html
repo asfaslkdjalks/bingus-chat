@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>bingus chat</title>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Titillium+Web"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <script type="module">
+      import 'https://unpkg.com/emoji-picker-element';
+    </script>
+    
+
+    
+
+  </head>
+  <body>
+    <header>
+      <h1 id="header">bingus chat (beta)</h1>
+      <button id="dark-mode-toggle">🐱</button>
+    </header>
+    <main>
+      <!-- <div id="video-chat-container" style="display: none;">
+        
+        <div id="remote-videos" style="display: none;"></div>
+        <div id="local-video" style="display: none;"></div>
+      </div> -->
+
+      <section id="chat-interface">
+        <div id="chat-container">
+          <div id="cmd-bar" class="row">
+            <div class="select-wrapper">
+              <select id="commandSelector">
+                <option value="/yt">yt</option>
+              </select>
+            </div>
+            <input
+              type="text"
+              id="commandInput"
+              placeholder="paste a youtube link..."
+            />
+          </div>
+          <div id="messages"></div>
+          <div id="typingIndicator" class="typing-indicator">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+          <div id="status-messages">
+            <div id="default-message">
+              click the find button to start a chat
+            </div>
+            <div id="searching-message" style="display: none">
+              searching for someone to chat with...
+            </div>
+            <div id="connected-message" style="display: none">connected</div>
+            <div id="disconnected-message" style="display: none">
+              disconnected
+            </div>
+          </div>
+          <div id="bottom-section">
+            <button id="start-searching">find</button>
+          </div>
+        </div>
+        <div id="new-message">
+          <input
+            type="text"
+            id="messageInput"
+            placeholder="type your message here..."
+          />
+          <button id="sendButton">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </section>
+      <div id="activities-container">
+        <div id="player-container" class="draggable">
+          <div id="resize-handle-player"></div>
+          <div id="player"></div>
+          <!-- YouTube Iframe will be inserted here -->
+          <div id="drag-handle" class="move-icon">
+            <i id="drag"
+              class="fas fa-arrows-alt"
+              style="color: #b2c3d4; display: none"
+            ></i>
+          </div>
+          <button id="close-video">
+            <i class="fas fa-times"></i>
+            <!-- Font Awesome X icon -->
+          </button>
+          <div id="soundcloud-player-container">
+            <canvas id="soundcloud-visualization"></canvas>
+          </div>
+        </div>
+        <emoji-picker id="emoji-picker" class="hidden"></emoji-picker>
+        <div id="chat-box-draggable">
+          <div id="chat-box">
+            <div id="resize-handle"></div>
+            <div id="online-users"><span class="green-text">9999</span> online</div>
+            <div id="chat-drag-handle" class="move-icon">
+              <i class="fas fa-arrows-alt" id="drag-chat"></i>
+            </div>
+            <div id="global-messages"></div> <!-- This is where your messages will appear -->
+            <div class="input-container">
+              <input id="global-message" placeholder="global chat..." autocomplete="off" />
+              <button id="emoji-button">😊</button>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </main>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://media.twiliocdn.com/sdk/js/video/releases/2.0.0/twilio-video.min.js"></script>
+    <script src="main.js"></script>
+    <!-- Place this in your HTML where it makes sense, typically near the bottom of the body -->
+    <audio
+      id="ding-sound"
+      src="/sounds/button-124476.mp3"
+      preload="auto"
+    ></audio>
+    <audio
+      id="ding-sound2"
+      src="/sounds/the-notification-email-143029.mp3"
+      preload="auto"
+    ></audio>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/service-worker.js").then(
+            function (registration) {
+              // Registration was successful
+              console.log(
+                "Service Worker registered with scope:",
+                registration.scope
+              );
+            },
+            function (err) {
+              // Registration failed :(
+              console.log("Service Worker registration failed:", err);
+            }
+          );
+        });
+      }
+    </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+  console.log('Script running'); // Confirm the script is running
+  const emojiPicker = document.querySelector('emoji-picker');
+  const input = document.querySelector('#global-message');
+  const emojiButton = document.querySelector('#emoji-button');
+
+  if (!emojiPicker || !input || !emojiButton) {
+    console.error('One or more elements were not found!');
+    return; // Stop the script if elements are not found
+  }
+
+  // Initialize the emoji picker with a style of display none
+  emojiPicker.style.display = 'none';
+
+  // Function to toggle the emoji picker display
+  function toggleEmojiPicker() {
+    console.log('Toggling emoji picker'); // Confirm the function is called
+    emojiPicker.style.display = (emojiPicker.style.display === 'block') ? 'none' : 'block';
+  }
+
+  // Event listener for the emoji button click
+  emojiButton.addEventListener('click', (event) => {
+    toggleEmojiPicker();
+    event.stopPropagation(); // Prevent the click from propagating to the document
+  });
+
+  // Event listener to detect when an emoji is clicked
+  emojiPicker.addEventListener('emoji-click', event => {
+    console.log('Emoji clicked:', event.detail.unicode); // Confirm the event is captured
+    input.value += event.detail.unicode; // Insert the emoji into the input field
+    input.focus(); // Bring focus back to the input field
+  });
+
+  // Event listener for clicking outside the emoji picker to close it
+  document.addEventListener('click', (event) => {
+    if (!emojiPicker.contains(event.target) && !emojiButton.contains(event.target)) {
+      emojiPicker.style.display = 'none'; // Hide the emoji picker
+    }
+  });
+});
+
+  </script>
+  
+  </body>
+</html>

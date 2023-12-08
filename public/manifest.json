@@ -1,0 +1,9 @@
+{
+  "short_name": "bingusChat",
+  "name": "bingusChat",
+  "start_url": "/",
+  "background_color": "#c8d7e6",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#c8d7e6"
+}

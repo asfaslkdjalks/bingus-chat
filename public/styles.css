@@ -1,0 +1,986 @@
+* {
+  box-sizing: border-box; /* Include padding and borders in the element's total width and height */
+  margin: 0; /* Reset default margins */
+  padding: 0; /* Reset default paddings */
+}
+body,
+button,
+input,
+#messages,
+#commandSelector,
+.global-msg,
+#online-users,
+.green-text {
+  font-family: "Titillium Web", sans-serif;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #c8d7e6; /* Optional: sets a background color for the entire view */
+}
+
+/* Add this class in your CSS file */
+.no-select {
+  -webkit-user-select: none; /* Chrome, Safari, Opera */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+
+header {
+  color: black;
+  padding: 10px;
+  text-align: center;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  padding: 10px;
+}
+
+#chat-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #c1d2e4;
+  border: 1px solid #b2c3d4;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Make sure the input area stays at the bottom */
+  border-radius: 10px;
+  margin: auto;
+  margin-bottom: 0;
+}
+.row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+#messages {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  overflow-y: scroll;
+  margin-bottom: 25px;
+}
+
+#new-message {
+  width: 100%;
+  display: flex;
+  margin-top: 8px;
+  justify-content: space-between;
+}
+
+.message {
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border-radius: 14px;
+  color: #e7e7e7;
+  max-width: 60%; /* Max width for messages */
+  word-wrap: break-word; /* Ensure long words don't overflow */
+  font-size: 0.8em;
+  max-width: 250px;
+  margin-bottom: 5px;
+}
+
+.sent-message {
+  background-color: #658bb4;
+  align-self: flex-end;
+  margin-right: 8px;
+}
+
+.received-message {
+  background-color: #81b5ec;
+  align-self: flex-start;
+  margin-left: 10px;
+}
+
+.timestamp {
+  display: block;
+  font-size: 0.75em;
+  margin-top: 5px;
+}
+
+#messageInput {
+  box-sizing: border-box; /* Include padding and border in the element's total width */
+  width: 100%;
+  padding: 8px;
+  padding-left: 15px; /* If you want the left padding to be greater */
+  border: 1px solid #b2c3d4;
+  background-color: #dae6f3;
+  border-radius: 10px;
+  outline: none;
+  color: #658bb4;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+#cmd-bar {
+  position: absolute;
+  top: 5%;
+  width: 84%;
+  left: 8%;
+}
+
+#global-message::placeholder {
+  color: #9aabbe;
+  opacity: 100%;
+}
+
+#messageInput::placeholder {
+  color: #9aabbe;
+  opacity: 100%;
+}
+
+#bottom-section {
+  display: flex;
+  flex-direction: row;
+  padding-right: 20px;
+  vertical-align: middle;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+#commandInput::placeholder {
+  color: #9aabbe;
+  opacity: 100%;
+}
+
+#resize-handle-player {
+  width: 100%;
+  height: 8px;
+  background: #b2c3d4;
+  cursor: grab;
+  position: absolute;
+  top: 0;
+  z-index: 10; /* Make sure the handle is above other elements */
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+#sendButton {
+  width: 30px;
+  height: 30px;
+  padding-right: 2px;
+  background-color: #658bb4;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+  margin-left: 5px;
+  vertical-align: middle;
+  margin-top: 4px;
+}
+
+#sendButton:hover {
+  background-color: #425b75;
+}
+
+#start-searching {
+  width: 75px;
+  min-height: 40px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #658bb4;
+  color: white;
+  font-weight: bold;
+  margin-right: 10px;
+  margin-left: 20px;
+}
+
+#video-chat-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 40%; /* Take full width of the container */
+  margin-right: 2%;
+  margin-left: 5%;
+  padding: 2.9%;
+  padding-top: 2%;
+  height: 89.5%;
+}
+
+#activities-container {
+  position: relative;
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  justify-content: flex-start;
+  width: 60%;
+  margin-left: 1%;
+  margin-right: 5%;
+  padding: 2.9%;
+  padding-top: 2%;
+  height: 95.3%;
+  background-color: #c1d2e4;
+  border: 1px solid #b2c3d4;
+  border-radius: 10px;
+  align-items: center; /* Center align items, might want to change this if it affects other children */
+}
+
+#chat-box {
+  position: relative;
+  width: 100%;
+  height: calc(100%); /* Adjust as necessary */
+  border: 1px solid #b2c3d4;
+  background-color: #dae6f3;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* This will keep your input container at the bottom */
+  margin-bottom: 0;
+  resize: none;
+  z-index: 1999;
+  flex-grow: 1;
+  overflow: auto; /* This will handle overflowing messages */
+  max-width: 100%;
+}
+
+/* Styles for the input container within the chat box */
+.input-container {
+  position: relative; /* Establish a positioning context */
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Emoji button styles */
+#emoji-button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  position: absolute; /* Position absolutely within .input-container */
+  right: 10px; /* Position based on the right edge of the input field */
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%); /* Adjust vertical centering */
+  font-size: 1.2em; /* Adjust the size of the emoji icon */
+  z-index: 2; /* Ensure button is above the input field */
+  outline: none; /* Remove outline to maintain the style when focused */
+}
+
+/* Emoji picker styles */
+#emoji-picker {
+  position: absolute;
+/* Adjust as necessary to position the emoji picker above the input field */
+  left: 54%;
+  bottom: 14%;
+  z-index: 2000; /* This ensures it's above the chat box */
+  display: none; /* Start hidden and toggle this with JavaScript */
+}
+
+emoji-picker {
+  position: absolute;
+  z-index: 100;
+}
+
+/* Adjust the emoji picker visibility when it's active */
+#emoji-picker.active {
+  display: block;
+  z-index: 100;
+}
+
+#resize-handle {
+  width: 100%;
+  height: 8px;
+  background: #b2c3d4;
+  cursor: grab;
+  position: absolute;
+  top: 0;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+  z-index: 1; /* Make sure the handle is above other elements */
+}
+
+.green-text {
+  color: rgb(158, 211, 158);
+  font-weight: bold;
+}
+
+#online-users {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 14px;
+  width: 80px;
+  padding-top: 9px;
+  padding-bottom: 3px;
+  background-color: #cdd9e6;
+  color: white;
+  border-radius: 0 0 0 10px;
+
+  text-align: center; /* Center text when it wraps */
+}
+
+#chat-box-draggable {
+  position: absolute; /* Or 'fixed' if you want it to stay in place relative to the viewport */
+  top: 42%; /* Initial position, adjust as necessary */
+  left: 10.2%; /* Initial position, adjust as necessary */
+  width: 80%; /* Or set a specific width */
+  height: 50%; /* Or set a specific height */
+
+}
+
+#global-message {
+  padding-top: 4px;
+  padding-left: 15px;
+  padding-bottom: 6px;
+  border-top: 1px solid #b2c3d4;
+  outline: none;
+  background-color: #dae6f3;
+  color: #333; /* Text color for the input */
+  min-height: 30px;
+  height: 30px;
+  width: 100%;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  border-radius: 10px;
+  border-top-right-radius: 0px;
+  border-top-left-radius: 0px;
+}
+
+#global-messages {
+  padding-left: 5px;
+  padding-bottom: 5px;
+  overflow: auto; /* This will handle overflowing messages */
+}
+
+.global-message {
+  display: flex;
+  flex-direction: column;
+  color: black;
+  padding: 0px;
+  max-width: 80%;
+  word-wrap: break-word;
+  align-self: flex-start;
+  min-height: auto;
+}
+
+.name-span {
+  display: inline-block; /* Allows us to accurately position the hover effect */
+  cursor: pointer; /* Indicates that the name is interactive */
+}
+
+.name-span .tripcode {
+  display: none;
+  margin-left: 5px; /* Give some space between the username and tripcode */
+  color: black;
+  font-weight: normal;
+  font-size: 12px;
+}
+
+.name-span:hover .tripcode {
+  display: inline; /* Show the tripcode only when hovering over the username */
+}
+
+.highlighted {
+  background-color: rgba(
+    255,
+    255,
+    0,
+    0.212
+  ); /* or any other style to highlight the message */
+}
+
+.select-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 40px; /* Or any other height that fits your design */
+  cursor: pointer;
+}
+
+.select-wrapper::after {
+  /* Use Font Awesome's chevron-down icon */
+  content: "\f078";
+  font-family: "Font Awesome 5 Free"; /* This is required to use the icon */
+  font-weight: 900; /* Font Awesome requires this weight for solid icons */
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* Makes sure clicks pass through to the select element */
+  color: white; /* Color of the arrow, adjust as needed */
+  background-color: transparent;
+  z-index: -1; /* Ensure the arrow does not block the select */
+  cursor: pointer;
+}
+
+#commandSelector {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 6px;
+  background-color: #658bb4;
+  color: white;
+  font-weight: bold;
+  border: 1px solid #658bb4;
+  height: 35px; /* Match the height of the select wrapper */
+  cursor: pointer;
+  outline: none;
+  z-index: 1999;
+}
+
+#commandInput {
+  box-sizing: border-box; /* Include padding and border in the element's total width */
+  width: 100%;
+  padding: 8px;
+  padding-left: 15px; /* If you want the left padding to be greater */
+  border: 1px solid #b2c3d4;
+  background-color: #dae6f3;
+  border-radius: 10px;
+  outline: none;
+  color: #658bb4;
+  margin-left: 5px;
+}
+
+#chat-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #c1d2e4;
+  border: 1px solid #b2c3d4;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Make sure the input area stays at the bottom */
+  overflow: hidden;
+  border-radius: 10px;
+  margin: auto;
+  margin-bottom: 0;
+}
+
+#chat-interface {
+  position: relative;
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 2%;
+  margin-left: 5%;
+  height: 100%;
+  overflow: auto;
+  max-height: 832px;
+}
+
+#local-video {
+  margin-top: auto; /* Pushes the element to the bottom */
+  width: 100%; /* Take full width of the container */
+  height: 45%; /* Adjust height as needed */
+}
+
+#local-video video {
+  width: 100%;
+  max-height: 320px;
+  background-color: black; /* Background color */
+  border-radius: 8px; /* Optional: if you want rounded corners */
+}
+
+#remote-videos div video {
+  width: 100%;
+  max-height: 320px;
+  background-color: black; /* Background color */
+  border-radius: 8px; /* Optional: if you want rounded corners */
+}
+
+.typing-indicator {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%; /* or however wide you want it */
+  text-align: center;
+}
+
+.typing-indicator .dot {
+  height: 8px;
+  width: 8px;
+  margin: 0 2px;
+  background-color: #658bb4;
+  border-radius: 50%;
+  display: inline-block;
+  animation: typing 1.5s infinite ease;
+}
+
+@keyframes typing {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+#drag-chat {
+  color: #b2c3d4;
+}
+
+#waitingMessage {
+  font-size: 1.1em; /* Adjust the size as needed */
+  color: #cacaca; /* Subtle text color, change as desired */
+  text-align: center; /* Center the text */
+  padding: 10px;
+  font-weight: bold;
+  margin-top: 30%;
+}
+
+@keyframes bounce {
+  0%,
+  14% {
+    /* Up to 1.4s of 10s total time */
+    transform: translateY(0);
+  }
+  5.6% {
+    /* 40% of 1.4s */
+    transform: translateY(-8px);
+  }
+  8.4% {
+    /* 60% of 1.4s */
+    transform: translateY(-3px);
+  }
+  /* From 14% (1.4s) to 100% (10s), there is no movement */
+}
+
+.bounce {
+  display: inline-block;
+  animation: bounce 10s infinite linear;
+}
+
+.dark-mode {
+  color: #c5e4cd; /* Lighter pale green text color for the entire view */
+}
+
+.dark-mode #chat-box {
+  background-color: #99b299;
+  border-color: #a4bfa5;
+}
+
+.dark-mode #resize-handle-player {
+background: #a4bfa5;
+}
+
+.dark-mode #resize-handle {
+  background: #a4bfa5;
+}
+
+.dark-mode #global-message {
+  background-color: #99b299;
+  border-color: #a4bfa5;
+  color: #d0e6d4;
+}
+
+.dark-mode #online-users{
+  background-color: #d0e6d4;
+}
+
+.dark-mode #drag-chat {
+  color: #d0e6d4;
+}
+
+.dark-mode #global-message::placeholder {
+  color: #d0e6d4;
+}
+
+.dark-mode .sent-message {
+  background-color: #6a8d6c; /* Dark green for sent messages */
+  align-self: flex-end;
+  margin-right: 8px;
+}
+
+.dark-mode .received-message {
+  background-color: #8ca98c; /* Lighter green for received messages */
+  align-self: flex-start;
+  margin-left: 10px;
+}
+
+.dark-mode #messageInput::placeholder {
+  color: #d0e6d4;
+  opacity: 1; /* Full opacity */
+}
+
+.dark-mode #commandInput::placeholder {
+  color: #d0e6d4;
+  opacity: 1; /* Full opacity */
+}
+
+.dark-mode #status-messages {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%; /* or however wide you want it */
+  text-align: center;
+  font-size: 1.1em;
+  color: #c5e4cd;
+  padding: 10px;
+  font-weight: bold;
+  opacity: 60%;
+}
+
+.dark-mode #commandSelector {
+  border-color: #a4bfa5;
+  opacity: 1; /* Full opacity */
+}
+
+.dark-mode header {
+  background-color: #8ca98c;
+  color: #f0f8f0;
+}
+
+.dark-mode #chat-container {
+  background-color: #99b299;
+  border-color: #a4bfa5;
+}
+
+.dark-mode #messages {
+  color: #f0f8f0;
+}
+
+.dark-mode .message.you {
+  background-color: #a4d7a5; /* Much lighter pale green for 'You' messages */
+  color: #f0f8f0;
+}
+
+.dark-mode .message.partner {
+  background-color: #8ca98c; /* Lighter pale green for 'Partner' messages */
+  color: #c5e4cd;
+}
+
+.dark-mode #new-message {
+  background: #8ca98c;
+}
+
+.dark-mode #activities-container {
+  background: #8ca98c;
+  border-color: #a4bfa5;
+}
+
+.dark-mode #commandInput {
+  background: #99b299;
+  color: #d0e6d4;
+  border-color: #a4bfa5;
+}
+
+.dark-mode #commandSelector {
+  background-color: #a4bfa5;
+}
+
+.dark-mode #messageInput {
+  background: #99b299;
+  color: #d0e6d4;
+  border-color: #a4bfa5;
+}
+
+.dark-mode #start-searching {
+  border-color: #a4bfa5;
+  color: #d0e6d4;
+  background-color: #8db48e;
+}
+
+.dark-mode #sendButton {
+  background-color: #8db48e;
+}
+
+.dark-mode #sendButton:hover {
+  background-color: #80a882;
+}
+
+body.dark-mode {
+  background: #8ca98c; /* Lighter pale green background for the whole page */
+}
+
+header.dark-mode {
+  color: #8ca98c;
+}
+
+/* Custom scroll bars */
+.dark-mode ::-webkit-scrollbar {
+  width: 12px;
+}
+
+.dark-mode ::-webkit-scrollbar-track {
+  background: #99b299;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+  background-color: #82ca96;
+  border-radius: 6px;
+  border: 3px solid #99b299;
+}
+
+/* Tooltips */
+.dark-mode .tooltip {
+  background-color: #82ca96;
+  color: #f0f8f0;
+  border: 1px solid #a4bfa5;
+}
+
+/* You might need vendor prefixes for different browsers for scrollbar customization */
+
+/* Toggle button styles */
+#dark-mode-toggle {
+  font-size: 1.5em; /* Larger emojis */
+  border: none; /* No border */
+  background-color: transparent; /* Transparent background */
+  cursor: pointer; /* Cursor to indicate it's clickable */
+  transition: transform 0.3s ease; /* Smooth transform transition */
+  outline: none; /* No focus outline */
+}
+
+/* Scale the button slightly when hovered for a nice effect */
+#dark-mode-toggle:hover {
+  transform: scale(1.1);
+}
+
+#status-messages {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%; /* or however wide you want it */
+  text-align: center;
+  font-size: 1.1em;
+  color: #8698aa;
+  padding: 10px;
+  font-weight: bold;
+  opacity: 60%;
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-4px);
+  }
+  60% {
+    transform: translateY(-2px);
+  }
+}
+
+.bounce {
+  display: inline-block; /* Allows transformation */
+  animation: bounce 2s infinite; /* Adjust the duration and iteration count as needed */
+}
+
+/* Custom scrollbar for Chrome, Safari and Opera */
+#messages::-webkit-scrollbar {
+  width: 8px; /* width of the entire scrollbar */
+}
+
+#messages::-webkit-scrollbar-track {
+  background: #b0c5db; /* color of the tracking area */
+}
+
+.dark-mode #messages::-webkit-scrollbar-track {
+  background: #8ca98c; /* color of the tracking area */
+}
+
+#messages::-webkit-scrollbar-thumb {
+  background: #869fbb; /* color of the scroll thumb */
+  border-radius: 10px; /* roundness of the scroll thumb */
+}
+
+.dark-mode #messages::-webkit-scrollbar-thumb {
+  background: #8ca98c; /* color of the scroll thumb */
+  border-radius: 10px; /* roundness of the scroll thumb */
+}
+
+#messages::-webkit-scrollbar-thumb:hover {
+  background: #90b1d4; /* color of the scroll thumb when hovered or clicked */
+}
+
+.dark-mode #messages::-webkit-scrollbar-thumb:hover {
+  background: #8ca98c; /* color of the scroll thumb when hovered or clicked */
+}
+
+/* Custom scrollbar for Chrome, Safari and Opera */
+#global-messages::-webkit-scrollbar {
+  width: 8px; /* width of the entire scrollbar */
+}
+
+#global-messages::-webkit-scrollbar-track {
+  background: #b0c5db; /* color of the tracking area */
+}
+
+#global-messages::-webkit-scrollbar-thumb {
+  background: #869fbb; /* color of the scroll thumb */
+  border-radius: 10px; /* roundness of the scroll thumb */
+}
+
+.dark-mode #global-messages::-webkit-scrollbar-thumb {
+  background: #8ca98c; /* color of the scroll thumb */
+  border-radius: 10px; /* roundness of the scroll thumb */
+}
+
+#global-messages::-webkit-scrollbar-thumb:hover {
+  background: #90b1d4; /* color of the scroll thumb when hovered or clicked */
+}
+
+/* Custom scrollbar for Firefox */
+#messages {
+  scrollbar-width: thin; /* "auto" or "thin" */
+  scrollbar-color: #658ab1 #c8d7e6; /* thumb and track color */
+}
+
+.dark-mode #messages {
+  scrollbar-width: thin; /* "auto" or "thin" */
+  scrollbar-color: #80a882 #80a882; /* thumb and track color */
+}
+
+/* Custom scrollbar for Internet Explorer and Edge */
+#messages {
+  -ms-overflow-style: -ms-autohiding-scrollbar; /* Auto-hiding scrollbar */
+}
+
+.draggable {
+  position: relative;
+}
+
+#player-container {
+  position: absolute;
+  width: calc(640px / 1.5); /* Roughly 213.33px */
+  height: calc(390px / 1.5); /* Roughly 130px */
+  left: 35.9%;
+  top: 5%; /* Move it up - adjust this value as needed */
+  transform: translateX(-15%); /* Keep the container horizontally centered */
+  z-index: 1000; /* Ensure it's above other content */
+  box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.15),
+    0px 15px 12px rgba(0, 0, 0, 0.22);
+  border-radius: 10px;
+  display: none;
+
+}
+
+#player {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}
+
+.move-icon {
+  position: absolute;
+  top: 15px; /* Adjust as needed */
+  left: 10px; /* Adjust as needed */
+  z-index: 10; /* Above the overlay */
+  cursor: move; /* Cursor indicates the element is movable */
+  /* Style your icon as needed */
+}
+
+#close-video {
+  position: absolute;
+  z-index: 10;
+  top: 15px; /* Adjust as needed */
+  left: 95%; /* Adjust as needed */
+  width: 15px; /* Size of the square */
+  height: 15px; /* Size of the square */
+  background-color: rgb(201, 74, 74); /* Red background */
+  color: white; /* White icon color */
+  border: none; /* Remove border */
+  cursor: pointer; /* Cursor changes to pointer on hover */
+  border-radius: 5px; /* Optional: Rounded corners */
+  display: flex; /* Flexbox to center the icon */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+  text-align: center;
+}
+
+/* Optional: Change appearance on hover */
+#close-video:hover {
+  background-color: rgb(148, 59, 59);
+}
+
+/* Adjust the size of the Font Awesome icon if needed */
+#close-video i {
+  font-size: 12px; /* Icon size */
+}
+
+@media screen and (max-width: 430px) {
+  main {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+  }
+  #chat-interface {
+    width: 90%;
+    max-height: 55%;
+  }
+  #activities-container {
+    width: 90%;
+    margin-left: 5%;
+    max-height: 39%;
+  }
+  #chat-box {
+    top: 25%;
+    width: 189%;
+    left: -90%;
+  }
+  #cmd-bar {
+    width: 75%;
+    margin-left: 5%;
+  }
+  #chat-box-draggable {
+    position: absolute; /* Or 'fixed' if you want it to stay in place relative to the viewport */
+    top: -10%; /* Initial position, adjust as necessary */
+    left: 82%; /* Initial position, adjust as necessary */
+    width: 80%; /* Or set a specific width */
+    height: 80%; /* Or set a specific height */
+  }
+  
+}
+
+@media screen and (max-width: 390px) {
+  main {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+  }
+  #chat-interface {
+    width: 95%;
+    max-height: 60%;
+    margin-left: 2.5%
+  }
+  #activities-container {
+    width: 95%;
+    margin-left: 2.5%;
+    max-height: 40%;
+  }
+  #chat-box {
+    top: 65%;
+    width: 213%;
+    left: -100%;
+  }
+  #cmd-bar {
+    width: 75%;
+    margin-left: 5%;
+  }
+
+  #chat-box-draggable {
+    position: absolute; /* Or 'fixed' if you want it to stay in place relative to the viewport */
+    top: -42%; /* Initial position, adjust as necessary */
+    left: 90%; /* Initial position, adjust as necessary */
+    width: 80%; /* Or set a specific width */
+    height: 80%; /* Or set a specific height */
+  }
+}
