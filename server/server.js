@@ -19,17 +19,6 @@ const io = new Server(server, {
 
 const port = process.env.PORT || 3000;
 
-// Add this after your existing middleware setup
-if (process.env.NODE_ENV === 'production') {
-  // Serve static files from React build
-  app.use(express.static(path.join(__dirname, '../client/dist')));
-  
-  // Handle React routing
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
-  });
-}
-
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors({
@@ -65,6 +54,7 @@ let assignedNames = {};
 let onlineUsersCount = 0;
 let userColors = new Map(); // Store user colors
 let publicRooms = new Map(); // Store public rooms
+let roomVideoStates = new Map(); // Store video states for each room
 
 // Helper functions
 function generateRandomName() {
@@ -298,6 +288,13 @@ io.on("connection", (socket) => {
           io.to(socket.publicRoomId).emit("room_user_left", {
             username: socket.userName || 'Anonymous'
           });
+          
+          // Remove room if empty
+          if (prevRoom.users.length === 0) {
+            publicRooms.delete(socket.publicRoomId);
+            roomVideoStates.delete(socket.publicRoomId);
+            console.log(`Room ${prevRoom.name} deleted - no users`);
+          }
         }
       }
       
@@ -317,11 +314,48 @@ io.on("connection", (socket) => {
         users: room.users.map(u => u.name)
       });
       
+      // Check if there's an active video in the room
+      const videoState = roomVideoStates.get(data.roomId);
+      if (videoState && videoState.link) {
+        // Request current timestamp from the creator
+        const creatorSocket = io.sockets.sockets.get(room.creatorId);
+        if (creatorSocket) {
+          // Ask creator for current video time
+          creatorSocket.emit("request_video_time", { 
+            roomId: data.roomId,
+            requesterSocketId: socket.id 
+          });
+        } else {
+          // Fallback if creator not found
+          socket.emit("room_video_sync", {
+            link: videoState.link,
+            playing: videoState.playing,
+            currentTime: 0
+          });
+        }
+      }
+      
       socket.to(data.roomId).emit("room_user_joined", {
         username: socket.userName || 'Anonymous'
       });
       
       console.log(`${socket.userName} joined room ${room.name}`);
+    }
+  });
+  
+  // Handle creator sending current video time
+  socket.on("send_video_time", (data) => {
+    const room = publicRooms.get(data.roomId);
+    if (room && room.creatorId === socket.id) {
+      // Send the current time to the requester
+      const requesterSocket = io.sockets.sockets.get(data.requesterSocketId);
+      if (requesterSocket) {
+        requesterSocket.emit("room_video_sync", {
+          link: data.link,
+          playing: data.playing,
+          currentTime: data.currentTime
+        });
+      }
     }
   });
 
@@ -331,10 +365,12 @@ io.on("connection", (socket) => {
       room.users = room.users.filter(u => u.id !== socket.id);
       socket.leave(data.roomId);
       
-      // If creator left and room is empty, delete room
-      if (room.creatorId === socket.id && room.users.length === 0) {
+      // Remove room if empty
+      if (room.users.length === 0) {
         publicRooms.delete(data.roomId);
+        roomVideoStates.delete(data.roomId);
         io.to(data.roomId).emit("room_closed");
+        console.log(`Room ${room.name} deleted - no users`);
       } else {
         socket.to(data.roomId).emit("room_user_left", {
           username: socket.userName || 'Anonymous'
@@ -364,10 +400,37 @@ io.on("connection", (socket) => {
   socket.on("room_video", (data) => {
     const room = publicRooms.get(data.roomId);
     if (room && room.creatorId === socket.id) {
+      // Store video state
+      roomVideoStates.set(data.roomId, {
+        link: data.link,
+        playing: true,
+        currentTime: 0,
+        lastUpdate: Date.now()
+      });
+      
       io.to(data.roomId).emit("room_video", {
         link: data.link
       });
       console.log(`Video played in room ${room.name}: ${data.link}`);
+    }
+  });
+  
+  socket.on("room_video_update", (data) => {
+    const room = publicRooms.get(data.roomId);
+    if (room && room.creatorId === socket.id) {
+      // Update video state
+      const videoState = roomVideoStates.get(data.roomId);
+      if (videoState) {
+        videoState.playing = data.playing;
+        videoState.currentTime = data.currentTime;
+        videoState.lastUpdate = Date.now();
+        
+        // Broadcast to other users in room
+        socket.to(data.roomId).emit("room_video_update", {
+          playing: data.playing,
+          currentTime: data.currentTime
+        });
+      }
     }
   });
 
@@ -394,9 +457,11 @@ io.on("connection", (socket) => {
       if (room) {
         room.users = room.users.filter(u => u.id !== socket.id);
         
-        if (room.creatorId === socket.id && room.users.length === 0) {
+        if (room.users.length === 0) {
           publicRooms.delete(socket.publicRoomId);
+          roomVideoStates.delete(socket.publicRoomId);
           io.to(socket.publicRoomId).emit("room_closed");
+          console.log(`Room ${room.name} deleted - no users`);
         } else {
           socket.to(socket.publicRoomId).emit("room_user_left", {
             username: socket.userName || 'Anonymous'
